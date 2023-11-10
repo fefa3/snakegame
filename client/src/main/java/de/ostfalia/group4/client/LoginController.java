@@ -2,10 +2,15 @@ package de.ostfalia.group4.client;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class LoginController {
 // @fmxl, Referenz zur fxml Datei
@@ -42,5 +47,17 @@ public class LoginController {
             return true;
         }
         return false;
+    }
+
+    public static void loadWindow() {
+        try {
+            Stage mainstage = MainApplication.mainstage;
+            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("loginview.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+            mainstage.setScene(scene);
+            mainstage.setTitle("Login");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

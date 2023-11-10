@@ -2,10 +2,25 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<VBox alignment="CENTER" prefHeight="306.0" prefWidth="546.0" spacing="20" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.ostfalia.group4.client.HauptmenüController">
-    <Button onAction="#spielStarten" text="Spiel starten" />
-    <Button onAction="#historieAnzeigen" text="Historie" />
-    <Button onAction="#ausloggen" text="Ausloggen" />
+<VBox alignment="CENTER" prefHeight="450.0" prefWidth="815.0" spacing="20" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.ostfalia.group4.client.HauptmenüController">
+   <Label text="SUPERSNAKE" textFill="#11da3d">
+      <font>
+         <Font name="Comic Sans MS Bold" size="37.0" />
+      </font>
+   </Label>
+    <Button onAction="#spielStarten" style="-fx-background-color: #c4f6cf;" text="Spiel starten">
+      <font>
+         <Font name="System Bold Italic" size="15.0" />
+      </font></Button>
+    <Button onAction="#historieAnzeigen" style="-fx-background-color: #c4f6cf;" text="Historie">
+      <font>
+         <Font name="System Bold Italic" size="15.0" />
+      </font></Button>
+    <Button onAction="#ausloggen" style="-fx-background-color: #c4f6cf;" text="Ausloggen">
+      <font>
+         <Font name="System Bold Italic" size="15.0" />
+      </font></Button>
 
 </VBox>

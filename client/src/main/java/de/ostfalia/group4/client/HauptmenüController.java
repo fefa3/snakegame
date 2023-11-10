@@ -6,6 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -29,6 +30,7 @@ public class HauptmenüController {
     // Ausloggen Button
     private void ausloggen(ActionEvent event) {
         showAlert("Ausgeloggt!");
+        LoginController.loadWindow();
     }
 
     private void showAlert(String message) {
