@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" prefHeight="306.0" prefWidth="546.0" spacing="20" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.ostfalia.group4.client.HauptmenüController">
+    <Button onAction="#spielStarten" text="Spiel starten" />
+    <Button onAction="#historieAnzeigen" text="Historie" />
+    <Button onAction="#ausloggen" text="Ausloggen" />
+
+</VBox>
