@@ -49,6 +49,7 @@ public class LoginController {
         return false;
     }
 
+    // Funktion zur Anzeige eines Fensters
     public static void loadWindow() {
         try {
             Stage mainstage = MainApplication.mainstage;

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox alignment="CENTER" prefHeight="450.0" prefWidth="815.0" spacing="20" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.ostfalia.group4.client.SchwierigkeitController">
+   <Label text="Level-Auswahl" textFill="#11da3d">
+      <font>
+         <Font name="Comic Sans MS Bold" size="37.0" />
+      </font>
+   </Label>
+   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="70.0">
+      <children>
+          <Button onAction="#levelleicht" style="-fx-background-color: #c4f6cf;" text="Leicht">
+            <font>
+               <Font name="System Bold Italic" size="20.0" />
+            </font>
+         </Button>
+          <Button onAction="#levelmittel" style="-fx-background-color: #c4f6cf;" text="Mittel">
+            <font>
+               <Font name="System Bold Italic" size="20.0" />
+            </font>
+         </Button>
+          <Button onAction="#levelschwer" style="-fx-background-color: #c4f6cf;" text="Schwer">
+            <font>
+               <Font name="System Bold Italic" size="20.0" />
+            </font>
+         </Button>
+      </children>
+   </HBox>
+
+</VBox>

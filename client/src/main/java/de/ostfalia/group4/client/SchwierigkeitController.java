@@ -3,34 +3,30 @@ package de.ostfalia.group4.client;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.paint.Color;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class HauptmenüController {
+public class SchwierigkeitController {
 
     @FXML
-    // Spiel starten Button
-    private void spielStarten(ActionEvent event) {
-        SchwierigkeitController.loadWindow();
+    // Spiel startet auf leichter Schwierigkeit
+    private void levelleicht(ActionEvent event) {
+        showAlert("Spiel startet auf leichter Schwierigkeit!");
     }
 
     @FXML
-    // Historie Button
-    private void historieAnzeigen(ActionEvent event) {
-        showAlert("Historie anzeigen!");
+    // Spiel startet auf mittlerer Schwierigkeit
+    private void levelmittel(ActionEvent event) {
+        showAlert("Spiel startet auf mittlerer Schwierigkeit!");
     }
 
     @FXML
-    // Ausloggen Button
-    private void ausloggen(ActionEvent event) {
-        showAlert("Ausgeloggt!");
-        LoginController.loadWindow();
+    // Spiel startet auf schwerer Schwierigkeit
+    private void levelschwer(ActionEvent event) {
+        showAlert("Spiel startet auf schwerer Schwierigkeit!");
     }
 
     private void showAlert(String message) {
@@ -45,10 +41,10 @@ public class HauptmenüController {
     public static void loadWindow() {
         try {
             Stage mainstage = MainApplication.mainstage;
-            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("hauptmenüview.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("schwierigkeitview.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
             mainstage.setScene(scene);
-            mainstage.setTitle("Hauptmenü");
+            mainstage.setTitle("Schwierigkeit");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
