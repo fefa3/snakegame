@@ -17,7 +17,7 @@ public class HauptmenüController {
     @FXML
     // Spiel starten Button
     private void spielStarten(ActionEvent event) {
-        SchwierigkeitController.loadWindow();
+        SnakeController.loadWindow();
     }
 
     @FXML
