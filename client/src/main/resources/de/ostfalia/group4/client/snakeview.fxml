@@ -3,10 +3,14 @@
 <?import javafx.scene.canvas.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <StackPane prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.ostfalia.group4.client.SnakeController">
     <children>
         <Canvas fx:id="gamesurface" height="400.0" width="400.0" />
-        <Label fx:id="gameOverLabel" alignment="CENTER" contentDisplay="CENTER" text="Game Over!" visible="false" />
+        <Label fx:id="gameOverLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="63.0" prefWidth="345.0" text="Game Over!" visible="false">
+         <font>
+            <Font name="System Bold" size="24.0" />
+         </font></Label>
     </children>
 </StackPane>

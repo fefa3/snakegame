@@ -31,7 +31,7 @@ public class SnakeController {
     private static final int GAME_SPEED = 200; // in milliseconds
 
     private LinkedList<Point> snake;
-    private Point fruit;
+    private Point redmushroom;
     private int direction; // 0: up, 1: right, 2: down, 3: left
     private boolean gameOver;
 
@@ -39,7 +39,7 @@ public class SnakeController {
     private void initialize() {
         snake = new LinkedList<>();
         snake.add(new Point(GRID_SIZE / 2, GRID_SIZE / 2));
-        fruit = generateRandomFruit();
+        redmushroom = generateRandomFruit();
         direction = 1; // initial direction is right
         gameOver = false;
         gamesurface.sceneProperty().addListener((obs, oldScene, newScene) -> {
@@ -116,22 +116,22 @@ public class SnakeController {
 
         snake.addFirst(newHead);
 
-        if (!newHead.equals(fruit)) {
+        if (!newHead.equals(redmushroom)) {
             snake.removeLast();
         } else {
-            fruit = generateRandomFruit();
+            redmushroom = generateRandomFruit();
         }
     }
 
     private void checkCollision() {
         Point head = snake.getFirst();
 
-        // Check collision with walls
-        if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+        // Kollision mit Wand
+        if (head.x <= 0 || head.x >= GRID_SIZE -1 || head.y <= 0 || head.y >= GRID_SIZE -1) {
             gameOver = true;
         }
 
-        // Check collision with itself
+        // Kollision mit Körper
         for (int i = 1; i < snake.size(); i++) {
             if (head.equals(snake.get(i))) {
                 gameOver = true;
@@ -141,8 +141,8 @@ public class SnakeController {
     }
 
     private void checkFruit() {
-        if (snake.getFirst().equals(fruit)) {
-            fruit = generateRandomFruit();
+        if (snake.getFirst().equals(redmushroom)) {
+            redmushroom = generateRandomFruit();
         }
     }
 
@@ -171,7 +171,8 @@ public class SnakeController {
 
         // Draw fruit
         gc.setFill(Color.RED);
-        gc.fillRect(fruit.x * TILE_SIZE, fruit.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        gc.fillRect(redmushroom.x * TILE_SIZE, redmushroom.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
 
         // Show game over message
         if (gameOver) {
