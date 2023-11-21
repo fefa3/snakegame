@@ -17,32 +17,35 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.Objects;
 
 public class SnakeController {
 
     @FXML
-    private Canvas gamesurface;
+    private Canvas gamesurface; // Grid fängt oben links bei 0/0 an
 
     @FXML
     private Label gameOverLabel;
 
-    private static final int TILE_SIZE = 20;
-    private static final int GRID_SIZE = 20;
-    private static final int GAME_SPEED = 200; // in milliseconds
+    // final= Variablen sind fest und werden nicht verändert
+    private static final int TILE_SIZE = 20; // Tile size: wie groß die Fläche ist, auf der sich die Items, Hindernisse etc. befinden
+    private static final int GRID_SIZE = 20; // Grid Side: Netzgröße (Spielfeld x*x)
+    private static final int GAME_SPEED = 200; // in Millisekunden
 
-    private LinkedList<Point> snake;
-    private Point redmushroom;
+    // jedes Körperteil hat eine Referenz auf das nächste
+    private LinkedList<Position> snake;
+    private Position redmushroom;
     private int direction; // 0: up, 1: right, 2: down, 3: left
     private boolean gameOver;
 
     @FXML
     private void initialize() {
-        snake = new LinkedList<>();
-        snake.add(new Point(GRID_SIZE / 2, GRID_SIZE / 2));
+        snake = new LinkedList<>(); // leere Liste wird erstellt
+        snake.add(new Position(GRID_SIZE / 2, GRID_SIZE / 2)); // Schlagenkopf wird in der Mitte des Grids erstellt
         redmushroom = generateRandomFruit();
-        direction = 1; // initial direction is right
+        direction = 1; // initial direction ist rechts
         gameOver = false;
-        gamesurface.sceneProperty().addListener((obs, oldScene, newScene) -> {
+        gamesurface.sceneProperty().addListener((obs, oldScene, newScene) -> { // Tastatureingaben werden abgefangen, damit Spieler Schlange bewegen kann
             if (oldScene != null) {
                 oldScene.removeEventHandler(KeyEvent.KEY_PRESSED, this::handleKeyPress);
             }
@@ -52,11 +55,11 @@ public class SnakeController {
             // != -> nicht gleich
         });
 
+        // erstellt Game Loop (Ticks (ein Tick = 1 Durchlauf der Loop)
         Timeline timeline = new Timeline(new KeyFrame(Duration.millis(GAME_SPEED), event -> {
             if (!gameOver) {
                 move();
                 checkCollision();
-                checkFruit();
                 draw();
             }
         }));
@@ -64,6 +67,7 @@ public class SnakeController {
         timeline.play();
     }
 
+    // Definieren der Tastatureingaben, was diese bewirken
     @FXML
     private void handleKeyPress(javafx.scene.input.KeyEvent event) {
         KeyCode code = event.getCode();
@@ -71,6 +75,7 @@ public class SnakeController {
 
         switch (code) {
             case UP:
+                // die Richtungen schließen sich gegenseitig aus, also wenn oben geht nicht unten
                 if (direction != 2) {
                     direction = 0;
                 }
@@ -94,111 +99,107 @@ public class SnakeController {
     }
 
     private void move() {
-        Point head = snake.getFirst();
-        Point newHead;
+        Position head = snake.getFirst();
+        Position newHead;
 
         switch (direction) {
             case 0: // up
-                newHead = new Point(head.x, (head.y - 1 + GRID_SIZE) % GRID_SIZE);
+                newHead = new Position(head.x, head.y - 1 );
                 break;
             case 1: // right
-                newHead = new Point((head.x + 1) % GRID_SIZE, head.y);
+                newHead = new Position(head.x + 1, head.y);
                 break;
             case 2: // down
-                newHead = new Point(head.x, (head.y + 1) % GRID_SIZE);
+                newHead = new Position(head.x, head.y + 1);
                 break;
             case 3: // left
-                newHead = new Point((head.x - 1 + GRID_SIZE) % GRID_SIZE, head.y);
+                newHead = new Position(head.x - 1, head.y);
                 break;
-            default:
+            default: // damit newHead einen Wert hat (default: wenn die Richtung weder 0,1,2,3 ist)
                 newHead = head;
         }
 
-        snake.addFirst(newHead);
-
-        if (!newHead.equals(redmushroom)) {
+        snake.addFirst(newHead); // neuer Kopf wird vorne hinzufügt (neues Körperteil)
+//!: Verneinung
+        if (!newHead.equals(redmushroom)) { // wenn man kein Vergrößerungsitem eingesammelt hat, bleibt man 1 groß und der letzte Pixel vom Feld von dem man kommt, verschwindet wieder
             snake.removeLast();
         } else {
-            redmushroom = generateRandomFruit();
+            redmushroom = generateRandomFruit(); // ansonsten neues Item generieren und letzter Step lassen, damit Schlange größer wird
         }
     }
 
     private void checkCollision() {
-        Point head = snake.getFirst();
+        Position head = snake.getFirst();
 
         // Kollision mit Wand
-        if (head.x <= 0 || head.x >= GRID_SIZE -1 || head.y <= 0 || head.y >= GRID_SIZE -1) {
+        if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
             gameOver = true;
         }
 
         // Kollision mit Körper
-        for (int i = 1; i < snake.size(); i++) {
-            if (head.equals(snake.get(i))) {
+        for (int i = 1; i < snake.size(); i++) { // i++ = i+1, ganz am Anfang ist i=1, für jedes Körperteil der Schlange wird der Loop einmal durchgegangen
+            if (head.equals(snake.get(i))) { // man überprüft, ob der Kopf die gleiche Position wie ein Körperteil hat
                 gameOver = true;
                 break;
             }
         }
     }
 
-    private void checkFruit() {
-        if (snake.getFirst().equals(redmushroom)) {
-            redmushroom = generateRandomFruit();
-        }
-    }
-
-    private Point generateRandomFruit() {
+    private Position generateRandomFruit() {
         int x = (int) (Math.random() * GRID_SIZE);
         int y = (int) (Math.random() * GRID_SIZE);
 
-        // Ensure that the fruit is not generated on the snake
-        while (snake.contains(new Point(x, y))) {
+        // Die Items dürfen nicht auf der Schlange spawnen
+        while (snake.contains(new Position(x, y))) {
             x = (int) (Math.random() * GRID_SIZE);
             y = (int) (Math.random() * GRID_SIZE);
         }
 
-        return new Point(x, y);
+        return new Position(x, y);
     }
 
+    // Spielfeld mit Figur und Item wird "gemalt"
     private void draw() {
         GraphicsContext gc = gamesurface.getGraphicsContext2D();
         gc.clearRect(0, 0, GRID_SIZE * TILE_SIZE, GRID_SIZE * TILE_SIZE);
 
-        // Draw snake
+        // Draw Schlange
         gc.setFill(Color.GREEN);
-        for (Point point : snake) {
-            gc.fillRect(point.x * TILE_SIZE, point.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        for (Position position : snake) {
+            gc.fillRect(position.x * TILE_SIZE, position.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
 
-        // Draw fruit
+        // Draw Item
         gc.setFill(Color.RED);
         gc.fillRect(redmushroom.x * TILE_SIZE, redmushroom.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
 
-        // Show game over message
+        // "game over" Mitteilung
         if (gameOver) {
             gameOverLabel.setVisible(true);
         }
     }
 
-    private static class Point {
+    // Koordinaten Repräsentation
+    private static class Position {
         int x, y;
 
-        Point(int x, int y) {
+        Position(int x, int y) {
             this.x = x;
             this.y = y;
         }
 
-        @Override
-        public boolean equals(Object obj) {
+        @Override // Überschreiben
+        public boolean equals(Object obj) { // Vergleicht Objekte
             if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;
-            Point point = (Point) obj;
-            return x == point.x && y == point.y;
+            Position position = (Position) obj;
+            return x == position.x && y == position.y; // Vergleich der Koordinaten (Positionen/ Points), ob sich auf dieser etwas befindet
         }
 
         @Override
         public int hashCode() {
-            return 31 * x + y;
+            return Objects.hash(x, y);
         }
     }
     // Funktion zur Anzeige eines Fensters
