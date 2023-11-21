@@ -1,5 +1,6 @@
 package de.ostfalia.group4.client;
 
+import de.ostfalia.group4.client.model.Position;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -193,28 +194,6 @@ public class SnakeController {
         }
     }
 
-    // Koordinaten Repräsentation
-    private static class Position {
-        int x, y;
-
-        Position(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override // Überschreiben
-        public boolean equals(Object obj) { // Vergleicht Objekte
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
-            Position position = (Position) obj;
-            return x == position.x && y == position.y; // Vergleich der Koordinaten (Positionen/ Points), ob sich auf dieser etwas befindet
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, y);
-        }
-    }
     // Funktion zur Anzeige eines Fensters
     public static void loadWindow() {
         try {
