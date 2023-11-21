@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.canvas.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -11,6 +12,10 @@
         <Label fx:id="gameOverLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="63.0" prefWidth="345.0" text="Game Over!" visible="false">
          <font>
             <Font name="System Bold" size="24.0" />
-         </font></Label>
+         </font>
+         <StackPane.margin>
+            <Insets bottom="150.0" />
+         </StackPane.margin></Label>
+      <Button fx:id="tryagain" mnemonicParsing="false" onAction="#restart" text="Try again" visible="false" />
     </children>
 </StackPane>

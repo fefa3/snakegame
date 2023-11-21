@@ -3,11 +3,13 @@ package de.ostfalia.group4.client;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -26,7 +28,8 @@ public class SnakeController {
 
     @FXML
     private Label gameOverLabel;
-
+    @FXML
+    private Button tryagain;
     // final= Variablen sind fest und werden nicht verändert
     private static final int TILE_SIZE = 20; // Tile size: wie groß die Fläche ist, auf der sich die Items, Hindernisse etc. befinden
     private static final int GRID_SIZE = 20; // Grid Side: Netzgröße (Spielfeld x*x)
@@ -66,7 +69,16 @@ public class SnakeController {
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
     }
-
+    @FXML
+    private void restart(ActionEvent event) {
+        snake = new LinkedList<>(); // leere Liste wird erstellt
+        snake.add(new Position(GRID_SIZE / 2, GRID_SIZE / 2)); // Schlagenkopf wird in der Mitte des Grids erstellt
+        redmushroom = generateRandomFruit();
+        direction = 1; // initial direction ist rechts
+        gameOver = false;
+        gameOverLabel.setVisible(false);
+        tryagain.setVisible(false);
+    }
     // Definieren der Tastatureingaben, was diese bewirken
     @FXML
     private void handleKeyPress(javafx.scene.input.KeyEvent event) {
@@ -177,6 +189,7 @@ public class SnakeController {
         // "game over" Mitteilung
         if (gameOver) {
             gameOverLabel.setVisible(true);
+            tryagain.setVisible(true);
         }
     }
 
