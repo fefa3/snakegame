@@ -6,16 +6,25 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<StackPane prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.ostfalia.group4.client.SnakeController">
-    <children>
-        <Canvas fx:id="gamesurface" height="400.0" width="400.0" />
-        <Label fx:id="gameOverLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="63.0" prefWidth="345.0" text="Game Over!" visible="false">
-         <font>
-            <Font name="System Bold" size="24.0" />
-         </font>
-         <StackPane.margin>
-            <Insets bottom="150.0" />
-         </StackPane.margin></Label>
-      <Button fx:id="tryagain" mnemonicParsing="false" onAction="#restart" text="Try again" visible="false" />
-    </children>
-</StackPane>
+<AnchorPane prefHeight="600.0" prefWidth="430.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.ostfalia.group4.client.SnakeController">
+   <children>
+      <StackPane layoutX="14.0" layoutY="99.0" prefHeight="200.0" prefWidth="400.0" style="-fx-border-color:black; -fx-border-width: 1; -fx-border-style: solid;">
+          <children>
+              <Label fx:id="gameOverLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="63.0" prefWidth="345.0" text="Game Over!" visible="false">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font>
+               <StackPane.margin>
+                  <Insets bottom="150.0" />
+               </StackPane.margin>
+            </Label>
+              <Canvas fx:id="gamesurface" height="400.0" width="400.0" />
+            <Button fx:id="tryagain" mnemonicParsing="false" onAction="#restart" text="Try again" visible="false" />
+          </children>
+      </StackPane>
+      <Button focusTraversable="false" layoutX="337.0" layoutY="538.0" mnemonicParsing="false" onAction="#hauptmenueladen" text="Hauptmenü" />
+      <Button focusTraversable="false" layoutX="321.0" layoutY="37.0" mnemonicParsing="false" text="Musik On / Off" />
+      <Label layoutX="24.0" layoutY="41.0" text="Score: 0" />
+      <Label layoutX="126.0" layoutY="41.0" text="Zeit: 0 Sekunden" />
+   </children>
+</AnchorPane>

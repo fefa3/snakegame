@@ -10,7 +10,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -21,6 +23,7 @@ import javafx.util.Duration;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Objects;
+import java.util.Optional;
 
 public class SnakeController {
 
@@ -41,6 +44,7 @@ public class SnakeController {
     private Position redmushroom;
     private int direction; // 0: up, 1: right, 2: down, 3: left
     private boolean gameOver;
+    private Timeline timeline;
 
     @FXML
     private void initialize() {
@@ -60,7 +64,7 @@ public class SnakeController {
         });
 
         // erstellt Game Loop (Ticks (ein Tick = 1 Durchlauf der Loop)
-        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(GAME_SPEED), event -> {
+        timeline = new Timeline(new KeyFrame(Duration.millis(GAME_SPEED), event -> {
             if (!gameOver) {
                 move();
                 checkCollision();
@@ -192,6 +196,19 @@ public class SnakeController {
             gameOverLabel.setVisible(true);
             tryagain.setVisible(true);
         }
+    }
+
+    public void hauptmenueladen(ActionEvent actionEvent) {
+        timeline.pause();
+        // Abfrage, ob spiel wirklich beendet werden soll
+        Alert alert = new Alert(Alert.AlertType.WARNING, "Spiel wirklich beenden?", ButtonType.OK, ButtonType.CANCEL);
+        alert.setTitle("Spiel beenden");
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.get() == ButtonType.OK) {
+            ViewManager.getInstance().hauptmenueladen();
+        }
+        timeline.play();
     }
 }
 
