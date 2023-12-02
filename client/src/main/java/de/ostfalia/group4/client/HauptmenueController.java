@@ -3,21 +3,18 @@ package de.ostfalia.group4.client;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.paint.Color;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class HauptmenüController {
+public class HauptmenueController {
 
     @FXML
     // Spiel starten Button
     private void spielStarten(ActionEvent event) {
-        SnakeController.loadWindow();
+        ViewManager.getInstance().spielladen();
     }
 
     @FXML
@@ -30,7 +27,7 @@ public class HauptmenüController {
     // Ausloggen Button
     private void ausloggen(ActionEvent event) {
         showAlert("Ausgeloggt!");
-        LoginController.loadWindow();
+        ViewManager.getInstance().loginladen();
     }
 
     private void showAlert(String message) {
@@ -39,19 +36,6 @@ public class HauptmenüController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-
-    // Funktion zur Anzeige eines Fensters
-    public static void loadWindow() {
-        try {
-            Stage mainstage = MainApplication.mainstage;
-            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("hauptmenüview.fxml"));
-            Scene scene = new Scene(fxmlLoader.load());
-            mainstage.setScene(scene);
-            mainstage.setTitle("Hauptmenü");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
 

@@ -2,32 +2,26 @@ package de.ostfalia.group4.client;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
-
-import java.io.IOException;
 
 public class LoginController {
 // @fmxl, Referenz zur fxml Datei
     @FXML
-    private TextField usernamefeld;
+    private TextField benutzernamefeld;
 
     @FXML
-    private PasswordField passwordfeld;
+    private PasswordField passwortfeld;
 
     @FXML
     // Action Event, wegen anklicken des Login Buttons
     private void loginbuttonanklicken(ActionEvent event) {
-        String username = usernamefeld.getText();
-        String password = passwordfeld.getText();
+        String benutzername = benutzernamefeld.getText();
+        String passwort = passwortfeld.getText();
 
-        if (logindatencheck(username, password)) {
-            HauptmenüController.loadWindow();
+        if (logindatencheck(benutzername, passwort)) {
+            ViewManager.getInstance().hauptmenueladen();
             // wenn login erfolgreich
         } else {
             new Alert(Alert.AlertType.ERROR, "Password or Username invalid").show();
@@ -39,6 +33,7 @@ public class LoginController {
     // Action Event, wegen anklicken auf Registrier-Button
     private void registrierbuttonanklicken(ActionEvent event) {
         System.out.println("Registration button clicked");
+        ViewManager.getInstance().registrierenladen();
     }
 
     // Abfrage, ob Daten korrekt und beispielhaft was definiert
@@ -47,18 +42,5 @@ public class LoginController {
             return true;
         }
         return false;
-    }
-
-    // Funktion zur Anzeige eines Fensters
-    public static void loadWindow() {
-        try {
-            Stage mainstage = MainApplication.mainstage;
-            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("loginview.fxml"));
-            Scene scene = new Scene(fxmlLoader.load());
-            mainstage.setScene(scene);
-            mainstage.setTitle("Login");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox alignment="CENTER" prefHeight="450.0" prefWidth="815.0" spacing="20" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.ostfalia.group4.client.HauptmenüController">
+<VBox alignment="CENTER" prefHeight="450.0" prefWidth="815.0" spacing="20" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.ostfalia.group4.client.HauptmenueController">
    <Label text="SUPERSNAKE" textFill="#11da3d">
       <font>
          <Font name="Comic Sans MS Bold" size="37.0" />

@@ -193,19 +193,6 @@ public class SnakeController {
             tryagain.setVisible(true);
         }
     }
-
-    // Funktion zur Anzeige eines Fensters
-    public static void loadWindow() {
-        try {
-            Stage mainstage = MainApplication.mainstage;
-            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("snakeview.fxml"));
-            Scene scene = new Scene(fxmlLoader.load());
-            mainstage.setScene(scene);
-            mainstage.setTitle("Snake");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
 
 

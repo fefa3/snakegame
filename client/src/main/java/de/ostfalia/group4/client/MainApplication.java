@@ -9,15 +9,12 @@ import java.io.IOException;
 
 public class MainApplication extends Application {
     public static Stage mainstage;
-    // Hauptmenü/ Login = gleiches Fenster (Stage = Fenster / Scene = Hauptmenü, Login)
+    // Jeder View/ Scene = gleiches Fenster (Stage = Fenster / Scene = Hauptmenü, Login)
     @Override
     public void start(Stage stage) throws IOException {
         mainstage = stage;
         mainstage.setResizable(false);
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("loginview.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Snake");
-        stage.setScene(scene);
+        ViewManager.getInstance().loginladen();
         stage.show();
     }
 
