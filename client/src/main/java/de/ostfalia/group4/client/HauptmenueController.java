@@ -20,7 +20,7 @@ public class HauptmenueController {
     @FXML
     // Historie Button
     private void historieAnzeigen(ActionEvent event) {
-        showAlert("Historie anzeigen!");
+        ViewManager.getInstance().historieladen();
     }
 
     @FXML
