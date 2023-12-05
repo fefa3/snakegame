@@ -27,12 +27,16 @@ public class StatsController {
         return new ResponseEntity<>(statistikList, HttpStatus.OK);
     }
 
-    @GetMapping(path = "/add")
-    public ResponseEntity<String> statistikHinzufügen() {
-        User user=userRepository.findByName("gobbi");
-        Statistik statistik=new Statistik(3, user, new Date(Calendar.getInstance().getTime().getTime()), 69);
-        repository.save(statistik);
-        return new ResponseEntity<>("Hallo Adolf", HttpStatus.NOT_IMPLEMENTED);
+    @PostMapping(path = "/add")
+    public ResponseEntity<String> statistikHinzufügen(@RequestBody Statistik statistik) {
+        try {
+            User user = userRepository.findByName("gobbi");
+            statistik.setUser(user);
+            repository.save(statistik);
+            return new ResponseEntity<>("OK", HttpStatus.CREATED);
+        }catch (Exception e){
+            return new ResponseEntity<>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 

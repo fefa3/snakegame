@@ -16,7 +16,7 @@ public class UserController {
     public ResponseEntity<String> authentifizieren(@RequestParam String benutzername, @RequestParam String passwort) {
         User user=userRepository.findByNameAndPassword(benutzername, passwort);
         if(user!=null){
-            return new ResponseEntity<>("Hallo Adolf", HttpStatus.OK);
+            return new ResponseEntity<>("OK", HttpStatus.OK);
         }
         return new ResponseEntity<>("Falsches Passwort", HttpStatus.FORBIDDEN);
 
@@ -25,14 +25,16 @@ public class UserController {
     public void ausloggen() {
 
     }
-    @GetMapping (path="/register")
-    public ResponseEntity<String> registrieren(@RequestParam String benutzername, @RequestParam String passwort) {
-        if (userRepository.findByName(benutzername)!=null){
+    @PostMapping (path="/register")
+    public ResponseEntity<String> registrieren(@RequestBody User user) {
+        if (userRepository.findByName(user.getName())!=null){
             return new ResponseEntity<>("Nutzer bereits vorhanden", HttpStatus.CONFLICT);
         }
-        User user=new User(benutzername, passwort);
+        if (user.getPassword().isEmpty()) {
+            return new ResponseEntity<>("Bitte Passwort eingeben", HttpStatus.BAD_REQUEST);
+        }
         userRepository.save(user);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.CREATED);
 
     }
 }

@@ -6,6 +6,17 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+
 public class LoginController {
 // @fmxl, Referenz zur fxml Datei
     @FXML
@@ -16,7 +27,7 @@ public class LoginController {
 
     @FXML
     // Action Event, wegen anklicken des Login Buttons
-    private void loginbuttonanklicken(ActionEvent event) {
+    private void loginbuttonanklicken(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
         String benutzername = benutzernamefeld.getText();
         String passwort = passwortfeld.getText();
 
@@ -37,10 +48,17 @@ public class LoginController {
     }
 
     // Abfrage, ob Daten korrekt und beispielhaft was definiert
-    private boolean logindatencheck(String username, String password) {
-        if (username.equals("fenya") && password.equals("1234")){
-            return true;
-        }
-        return false;
+    private boolean logindatencheck(String username, String password) throws URISyntaxException, IOException, InterruptedException {
+        // Encoder wird benutzt, um Sonderzeichen in Parametern abzufangen.
+        String encodedUsername=URLEncoder.encode(username, StandardCharsets.UTF_8);
+        String encodedPassword=URLEncoder.encode(password, StandardCharsets.UTF_8);
+        String url = "http://localhost:8080/api/login?benutzername="+encodedUsername+"&passwort="+encodedPassword;
+
+        // Erstellen einer GET-Anfrage
+        HttpRequest request=HttpRequest.newBuilder(new URI(url)).GET().build();
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        // 200 ist der Http Code für OK und 403 steht für Forbidden
+        return response.statusCode() == 200;
     }
+
 }
