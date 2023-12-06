@@ -1,5 +1,8 @@
 package de.ostfalia.group4.client;
 
+import de.ostfalia.group4.client.model.Geschwindigkeitsmodifier;
+import de.ostfalia.group4.client.model.Groessenmodifier;
+import de.ostfalia.group4.client.model.Item;
 import de.ostfalia.group4.client.model.Position;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -37,11 +40,15 @@ public class SnakeController {
     // final= Variablen sind fest und werden nicht verändert
     private static final int TILE_SIZE = 20; // Tile size: wie groß die Fläche ist, auf der sich die Items, Hindernisse etc. befinden
     private static final int GRID_SIZE = 20; // Grid Side: Netzgröße (Spielfeld x*x)
-    private static final int GAME_SPEED = 200; // in Millisekunden
+    private static int GAME_SPEED = 200; // in Millisekunden
 
     // jedes Körperteil hat eine Referenz auf das nächste
     private LinkedList<Position> snake;
-    private Position redmushroom;
+    private Item redmushroom;
+    private Item bluemushroom;
+
+    private Geschwindigkeitsmodifier yellowflash;
+    private Geschwindigkeitsmodifier greenslime;
     private int direction; // 0: up, 1: right, 2: down, 3: left
     private boolean gameOver;
     private Timeline timeline;
@@ -50,7 +57,10 @@ public class SnakeController {
     private void initialize() {
         snake = new LinkedList<>(); // leere Liste wird erstellt
         snake.add(new Position(GRID_SIZE / 2, GRID_SIZE / 2)); // Schlagenkopf wird in der Mitte des Grids erstellt
-        redmushroom = generateRandomFruit();
+        redmushroom = new Groessenmodifier(generateRandomFruit(), 1);
+        bluemushroom = new Groessenmodifier(generateRandomFruit(),-1);
+        yellowflash = new Geschwindigkeitsmodifier(generateRandomFruit(), -10);
+        greenslime = new Geschwindigkeitsmodifier(generateRandomFruit(),10);
         direction = 1; // initial direction ist rechts
         gameOver = false;
         gamesurface.sceneProperty().addListener((obs, oldScene, newScene) -> { // Tastatureingaben werden abgefangen, damit Spieler Schlange bewegen kann
@@ -75,10 +85,14 @@ public class SnakeController {
         timeline.play();
     }
     @FXML
+    // bei restart wieder alles initialisieren
     private void restart(ActionEvent event) {
         snake = new LinkedList<>(); // leere Liste wird erstellt
         snake.add(new Position(GRID_SIZE / 2, GRID_SIZE / 2)); // Schlagenkopf wird in der Mitte des Grids erstellt
-        redmushroom = generateRandomFruit();
+        redmushroom = new Groessenmodifier(generateRandomFruit(), 1);
+        bluemushroom = new Groessenmodifier(generateRandomFruit(), -1);
+        yellowflash = new Geschwindigkeitsmodifier(generateRandomFruit(), -10);
+        greenslime = new Geschwindigkeitsmodifier(generateRandomFruit(),10);
         direction = 1; // initial direction ist rechts
         gameOver = false;
         gameOverLabel.setVisible(false);
@@ -136,16 +150,34 @@ public class SnakeController {
                 newHead = head;
         }
 
-        snake.addFirst(newHead); // neuer Kopf wird vorne hinzufügt (neues Körperteil)
+        snake.addFirst(newHead); // neuer Kopf wird vorne hinzufügt (neues Körperteil)/ Item Auswirkungen
 //!: Verneinung
-        if (!newHead.equals(redmushroom)) { // wenn man kein Vergrößerungsitem eingesammelt hat, bleibt man 1 groß und der letzte Pixel vom Feld von dem man kommt, verschwindet wieder
+        if (newHead.equals(bluemushroom.position)) { //wenn man ein Verkleinerungsitem einsammelt, wird ein Körperteil entfernt
+            snake.removeLast();
+            bluemushroom = new Groessenmodifier(generateRandomFruit(), -1);;
+        }
+        if (!newHead.equals(redmushroom.position)) { // wenn man kein Vergrößerungsitem eingesammelt hat, bleibt man 1 groß und der letzte Pixel vom Feld von dem man kommt, verschwindet wieder
             snake.removeLast();
         } else {
-            redmushroom = generateRandomFruit(); // ansonsten neues Item generieren und letzter Step lassen, damit Schlange größer wird
+            redmushroom = new Groessenmodifier(generateRandomFruit(), 1);; // ansonsten neues Item generieren und letzter Step lassen, damit Schlange größer wird
+        }
+        if (newHead.equals(yellowflash.position)) {
+            GAME_SPEED += yellowflash.geschwindigkeitsmodifier; //+= Shorthand für GameSpeed = GameSpeed +
+            timeline.setDelay(Duration.millis(GAME_SPEED));
+            yellowflash = new Geschwindigkeitsmodifier(generateRandomFruit(), -10);
+        } else if (greenslime.position.equals(newHead)) {
+            GAME_SPEED += greenslime.geschwindigkeitsmodifier;
+            timeline.setDelay(Duration.millis(GAME_SPEED));
+            greenslime = new Geschwindigkeitsmodifier(generateRandomFruit(), 10);
         }
     }
 
     private void checkCollision() {
+        // Schlange vorhanden?
+        if (snake.isEmpty()) {
+            gameOver = true;
+            return;
+        }
         Position head = snake.getFirst();
 
         // Kollision mit Wand
@@ -166,10 +198,22 @@ public class SnakeController {
         int x = (int) (Math.random() * GRID_SIZE);
         int y = (int) (Math.random() * GRID_SIZE);
 
-        // Die Items dürfen nicht auf der Schlange spawnen
-        while (snake.contains(new Position(x, y))) {
+        //Überprüfen ob Red oder Blue Mushroom
+        Position neuePosition = new Position(x,y);
+        boolean isredmushroom = redmushroom != null && redmushroom.position.equals(neuePosition);
+        boolean isbluemushroom = bluemushroom != null && bluemushroom.position.equals(neuePosition);
+        boolean isyellowflash = yellowflash != null && yellowflash.position.equals(neuePosition);
+        boolean isgreenslime = greenslime != null && greenslime.position.equals(neuePosition);
+
+        // Die Items dürfen nicht auf der Schlange und aufeinander spawnen
+        while (snake.contains(neuePosition) && isredmushroom && isbluemushroom && isyellowflash && isgreenslime) {
             x = (int) (Math.random() * GRID_SIZE);
             y = (int) (Math.random() * GRID_SIZE);
+            neuePosition = new Position(x,y);
+            isredmushroom = redmushroom.position.equals(neuePosition);
+            isbluemushroom = bluemushroom.position.equals(neuePosition);
+            isyellowflash = yellowflash.position.equals(neuePosition);
+            isgreenslime = greenslime.position.equals(neuePosition);
         }
 
         return new Position(x, y);
@@ -188,8 +232,19 @@ public class SnakeController {
 
         // Draw Item
         gc.setFill(Color.RED);
-        gc.fillRect(redmushroom.x * TILE_SIZE, redmushroom.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        gc.fillRect(redmushroom.position.x * TILE_SIZE, redmushroom.position.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
+        // Draw Item
+        gc.setFill(Color.BLUE);
+        gc.fillRect(bluemushroom.position.x * TILE_SIZE, bluemushroom.position.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+        // Draw Item
+        gc.setFill(Color.YELLOW);
+        gc.fillRect(yellowflash.position.x * TILE_SIZE, yellowflash.position.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+        // Draw Item
+        gc.setFill(Color.LIGHTGREEN);
+        gc.fillRect(greenslime.position.x * TILE_SIZE, greenslime.position.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
         // "game over" Mitteilung
         if (gameOver) {
