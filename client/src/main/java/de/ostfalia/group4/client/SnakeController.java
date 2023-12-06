@@ -205,7 +205,7 @@ public class SnakeController {
         boolean isgreenslime = greenslime != null && greenslime.position.equals(neuePosition);
 
         // Die Items dürfen nicht auf der Schlange und aufeinander spawnen
-        while (snake.contains(neuePosition) && isredmushroom && isbluemushroom && isyellowflash && isgreenslime) {
+        while (snake.contains(neuePosition) || isredmushroom || isbluemushroom || isyellowflash || isgreenslime) {
             x = (int) (Math.random() * GRID_SIZE);
             y = (int) (Math.random() * GRID_SIZE);
             neuePosition = new Position(x,y);
