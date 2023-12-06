@@ -59,8 +59,8 @@ public class SnakeController {
         snake.add(new Position(GRID_SIZE / 2, GRID_SIZE / 2)); // Schlagenkopf wird in der Mitte des Grids erstellt
         redmushroom = new Groessenmodifier(generateRandomFruit(), 1);
         bluemushroom = new Groessenmodifier(generateRandomFruit(),-1);
-        yellowflash = new Geschwindigkeitsmodifier(generateRandomFruit(), -10);
-        greenslime = new Geschwindigkeitsmodifier(generateRandomFruit(),10);
+        yellowflash = new Geschwindigkeitsmodifier(generateRandomFruit(), 0.1);
+        greenslime = new Geschwindigkeitsmodifier(generateRandomFruit(),-0.1);
         direction = 1; // initial direction ist rechts
         gameOver = false;
         gamesurface.sceneProperty().addListener((obs, oldScene, newScene) -> { // Tastatureingaben werden abgefangen, damit Spieler Schlange bewegen kann
@@ -91,12 +91,13 @@ public class SnakeController {
         snake.add(new Position(GRID_SIZE / 2, GRID_SIZE / 2)); // Schlagenkopf wird in der Mitte des Grids erstellt
         redmushroom = new Groessenmodifier(generateRandomFruit(), 1);
         bluemushroom = new Groessenmodifier(generateRandomFruit(), -1);
-        yellowflash = new Geschwindigkeitsmodifier(generateRandomFruit(), -10);
-        greenslime = new Geschwindigkeitsmodifier(generateRandomFruit(),10);
+        yellowflash = new Geschwindigkeitsmodifier(generateRandomFruit(), 0.1);
+        greenslime = new Geschwindigkeitsmodifier(generateRandomFruit(),-0.1);
         direction = 1; // initial direction ist rechts
         gameOver = false;
         gameOverLabel.setVisible(false);
         tryagain.setVisible(false);
+        timeline.setRate(1);
     }
     // Definieren der Tastatureingaben, was diese bewirken
     @FXML
@@ -162,13 +163,11 @@ public class SnakeController {
             redmushroom = new Groessenmodifier(generateRandomFruit(), 1);; // ansonsten neues Item generieren und letzter Step lassen, damit Schlange größer wird
         }
         if (newHead.equals(yellowflash.position)) {
-            GAME_SPEED += yellowflash.geschwindigkeitsmodifier; //+= Shorthand für GameSpeed = GameSpeed +
-            timeline.setDelay(Duration.millis(GAME_SPEED));
-            yellowflash = new Geschwindigkeitsmodifier(generateRandomFruit(), -10);
+            timeline.setRate(timeline.getRate()+yellowflash.geschwindigkeitsmodifier);
+            yellowflash = new Geschwindigkeitsmodifier(generateRandomFruit(), 0.1);
         } else if (greenslime.position.equals(newHead)) {
-            GAME_SPEED += greenslime.geschwindigkeitsmodifier;
-            timeline.setDelay(Duration.millis(GAME_SPEED));
-            greenslime = new Geschwindigkeitsmodifier(generateRandomFruit(), 10);
+            timeline.setRate(timeline.getRate()+greenslime.geschwindigkeitsmodifier);
+            greenslime = new Geschwindigkeitsmodifier(generateRandomFruit(), -0.1);
         }
     }
 
