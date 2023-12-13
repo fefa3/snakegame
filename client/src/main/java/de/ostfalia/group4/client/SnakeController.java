@@ -6,8 +6,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
@@ -17,12 +15,8 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Objects;
 import java.util.Optional;
 
 public class SnakeController {
@@ -36,40 +30,37 @@ public class SnakeController {
     private Button tryagain;
     // final= Variablen sind fest und werden nicht verändert
     private static final int TILE_SIZE = 20; // Tile size: wie groß die Fläche ist, auf der sich die Items, Hindernisse etc. befinden
-    private static final int GRID_SIZE = 20; // Grid Side: Netzgröße (Spielfeld x*x)
-    private static int GAME_SPEED = 200; // in Millisekunden
-
-    // jedes Körperteil hat eine Referenz auf das nächste
-    private LinkedList<Position> snake;
+    private Spielfeldumrandung spielfeldumrandung;
     private Item redmushroom;
     private Item bluemushroom;
 
     private Geschwindigkeitsmodifier yellowflash;
     private Geschwindigkeitsmodifier greenslime;
     private Schildmodifier orangeschild;
-    private boolean schildaktiviert;
     private Hindernis[] hindernisse;
-    private int direction; // 0: up, 1: right, 2: down, 3: left
     private boolean gameOver;
     private Timeline timeline;
+    private Spielfigur spielfigur;
 
     @FXML
     private void initialize() {
+        spielfeldumrandung = new Spielfeldumrandung(20,20);
         spielladen();
         gamesurface.sceneProperty().addListener((obs, oldScene, newScene) -> { // Tastatureingaben werden abgefangen, damit Spieler Schlange bewegen kann
-            if (oldScene != null) {
+            if (oldScene != null) { // != -> nicht gleich
                 oldScene.removeEventHandler(KeyEvent.KEY_PRESSED, this::handleKeyPress);
             }
             if (newScene != null) {
                 newScene.addEventHandler(KeyEvent.KEY_PRESSED, this::handleKeyPress);
             }
-            // != -> nicht gleich
         });
 
         // erstellt Game Loop (Ticks (ein Tick = 1 Durchlauf der Loop)
-        timeline = new Timeline(new KeyFrame(Duration.millis(GAME_SPEED), event -> {
+        // in Millisekunden
+        timeline = new Timeline(new KeyFrame(Duration.millis(200), event -> {
             if (!gameOver) {
-                move();
+                spielfigur.bewegen();
+                auswirkungen();
                 checkCollision();
                 draw();
             }
@@ -79,16 +70,13 @@ public class SnakeController {
     }
 
     private void spielladen() {
-        snake = new LinkedList<>(); // leere Liste wird erstellt
-        snake.add(new Position(GRID_SIZE / 2, GRID_SIZE / 2)); // Schlagenkopf wird in der Mitte des Grids erstellt
+        spielfigur = new Spielfigur(spielfeldumrandung.mitte()); // Schlagenkopf wird in der Mitte des Grids erstellt
         redmushroom = new Groessenmodifier(generateRandomFruit(), 1);
         bluemushroom = new Groessenmodifier(generateRandomFruit(),-1);
         yellowflash = new Geschwindigkeitsmodifier(generateRandomFruit(), 0.1);
         greenslime = new Geschwindigkeitsmodifier(generateRandomFruit(),-0.1);
         orangeschild = new Schildmodifier(generateRandomFruit());
-        schildaktiviert = false;
         hindernisse = new Hindernis[]{new Hindernis(generateRandomFruit()), new Hindernis(generateRandomFruit()), new Hindernis(generateRandomFruit())};
-        direction = 1; // initial direction ist rechts
         gameOver = false;
     }
 
@@ -104,93 +92,72 @@ public class SnakeController {
     @FXML
     private void handleKeyPress(javafx.scene.input.KeyEvent event) {
         KeyCode code = event.getCode();
-        System.out.println(code);
 
         switch (code) {
             case UP:
                 // die Richtungen schließen sich gegenseitig aus, also wenn oben geht nicht unten
-                if (direction != 2) {
-                    direction = 0;
+                if (spielfigur.richtung != 2) {
+                    spielfigur.richtung = 0;
                 }
                 break;
             case RIGHT:
-                if (direction != 3) {
-                    direction = 1;
+                if (spielfigur.richtung != 3) {
+                    spielfigur.richtung = 1;
                 }
                 break;
             case DOWN:
-                if (direction != 0) {
-                    direction = 2;
+                if (spielfigur.richtung != 0) {
+                    spielfigur.richtung = 2;
                 }
                 break;
             case LEFT:
-                if (direction != 1) {
-                    direction = 3;
+                if (spielfigur.richtung != 1) {
+                    spielfigur.richtung = 3;
                 }
                 break;
         }
     }
 
-    private void move() {
-        Position head = snake.getFirst();
-        Position newHead;
-
-        switch (direction) {
-            case 0: // up
-                newHead = new Position(head.x, head.y - 1 );
-                break;
-            case 1: // right
-                newHead = new Position(head.x + 1, head.y);
-                break;
-            case 2: // down
-                newHead = new Position(head.x, head.y + 1);
-                break;
-            case 3: // left
-                newHead = new Position(head.x - 1, head.y);
-                break;
-            default: // damit newHead einen Wert hat (default: wenn die Richtung weder 0,1,2,3 ist)
-                newHead = head;
-        }
-
-        snake.addFirst(newHead); // neuer Kopf wird vorne hinzufügt (neues Körperteil)/ Item Auswirkungen
-        if (schildaktiviert && isCollision()){ //Ausweichen kann vorher ausweichen, bevor Kopf in Wand ist
-            snake.removeFirst();
-            schildaktiviert = false;
-            ausweichen();
+// Item Auswirkungen
+    private void auswirkungen() {
+        if (spielfigur.hatSchild && isCollision()) { //Figur kann vorher ausweichen, bevor Kopf in der Wand ist
+            spielfigur.letztesKoerperteilhinzufuegen();
+            spielfigur.position = spielfigur.getKoerper().pop().position; //pop: entfernt das erste Element und gibt  es zurück
+            spielfigur.hatSchild = false;
+            spielfigur.ausweichen();
             return;
         }
 //!: Verneinung
-        if (newHead.equals(bluemushroom.position)) { //wenn man ein Verkleinerungsitem einsammelt, wird ein Körperteil entfernt
-            snake.removeLast();
-            bluemushroom = new Groessenmodifier(generateRandomFruit(), -1);;
-        }
-        if (!newHead.equals(redmushroom.position)) { // wenn man kein Vergrößerungsitem eingesammelt hat, bleibt man 1 groß und der letzte Pixel vom Feld von dem man kommt, verschwindet wieder
-            snake.removeLast();
-        } else {
-            redmushroom = new Groessenmodifier(generateRandomFruit(), 1);; // ansonsten neues Item generieren und letzter Step lassen, damit Schlange größer wird
-        }
-        if (newHead.equals(yellowflash.position)) {
+        if (spielfigur.position.equals(bluemushroom.position)) {
+            bluemushroom.auswirkung(spielfigur);
+            bluemushroom = new Groessenmodifier(generateRandomFruit(), -1);
+        } else if (spielfigur.position.equals(redmushroom.position)) {
+            redmushroom.auswirkung(spielfigur);
+            redmushroom = new Groessenmodifier(generateRandomFruit(), 1);
+        } else if (spielfigur.position.equals(yellowflash.position)) {
+            yellowflash.auswirkung(spielfigur);
             timeline.setRate(timeline.getRate()+yellowflash.geschwindigkeitsmodifier);
             yellowflash = new Geschwindigkeitsmodifier(generateRandomFruit(), 0.1);
-        } else if (greenslime.position.equals(newHead)) {
+        } else if (spielfigur.position.equals(greenslime.position)) {
+            greenslime.auswirkung(spielfigur);
             timeline.setRate(timeline.getRate()+greenslime.geschwindigkeitsmodifier);
             greenslime = new Geschwindigkeitsmodifier(generateRandomFruit(), -0.1);
-        } else if (newHead.equals(orangeschild.position)) {
-            schildaktiviert = true;
+        } else if (spielfigur.position.equals(orangeschild.position)) {
+            orangeschild.auswirkung(spielfigur);
             orangeschild = new Schildmodifier(generateRandomFruit());
         }
     }
     private boolean isCollision() { //Check, ob Spielfigur kollidiert
-        Position head = snake.getFirst();
+        Position head = spielfigur.position;
 
         // Kollision mit Wand
-        if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+        if (spielfeldumrandung.kollision(head)) {
             return true;
         }
 
         // Kollision mit Körper
-        for (int i = 1; i < snake.size(); i++) { // i++ = i+1, ganz am Anfang ist i=1, für jedes Körperteil der Schlange wird der Loop einmal durchgegangen
-            if (head.equals(snake.get(i))) { // man überprüft, ob der Kopf die gleiche Position wie ein Körperteil hat
+        for (int i = 0; i < spielfigur.getKoerper().size(); i++) { // i++ = i+1, ganz am Anfang ist i=0, für jedes Körperteil der Schlange wird der Loop einmal durchgegangen
+            if (head.equals(spielfigur.getKoerper().get(i).position)) { // man überprüft, ob der Kopf die gleiche Position wie ein Körperteil hat
                 return true;
             }
         }
@@ -204,7 +171,7 @@ public class SnakeController {
     }
     private void checkCollision() {
         // Schlange vorhanden?
-        if (snake.isEmpty()) {
+        if (spielfigur.position == null) {
             gameOver = true;
             return;
         }
@@ -213,45 +180,9 @@ public class SnakeController {
         }
     }
 
-    private void ausweichen() { //Random Richtung ändern, um mit Scild Kollision Hindernis/ Körper oder Wand zu verhindern
-        switch (direction) {
-            case 0:
-                if (Math.random()<0.5) {
-                    direction = 1;
-                }else {
-                    direction = 3;
-                }
-                break;
-            case 1:
-                if (Math.random()<0.5) {
-                    direction = 0;
-                }else {
-                    direction = 2;
-                }
-                break;
-            case 2:
-                if (Math.random()<0.5) {
-                    direction = 3;
-                }else {
-                    direction = 1;
-                }
-                break;
-            case 3:
-                if (Math.random()<0.5) {
-                    direction = 2;
-                }else {
-                    direction =0;
-                }
-                break;
-        }
-    }
-
     private Position generateRandomFruit() {
-        int x = (int) (Math.random() * GRID_SIZE);
-        int y = (int) (Math.random() * GRID_SIZE);
-
         //Überprüfen ob Red oder Blue Mushroom
-        Position neuePosition = new Position(x,y);
+        Position neuePosition = spielfeldumrandung.zufallsPosition();
         boolean isredmushroom = redmushroom != null && redmushroom.position.equals(neuePosition);
         boolean isbluemushroom = bluemushroom != null && bluemushroom.position.equals(neuePosition);
         boolean isyellowflash = yellowflash != null && yellowflash.position.equals(neuePosition);
@@ -267,10 +198,8 @@ public class SnakeController {
         }
 
         // Die Items dürfen nicht auf der Schlange und aufeinander spawnen
-        while (snake.contains(neuePosition) || isredmushroom || isbluemushroom || isyellowflash || isgreenslime || isorangeschild || ishindernis) {
-            x = (int) (Math.random() * GRID_SIZE);
-            y = (int) (Math.random() * GRID_SIZE);
-            neuePosition = new Position(x,y);
+        while (spielfigur.belegtPosition(neuePosition) || isredmushroom || isbluemushroom || isyellowflash || isgreenslime || isorangeschild || ishindernis) {
+            neuePosition = spielfeldumrandung.zufallsPosition();
             isredmushroom = redmushroom.position.equals(neuePosition);
             isbluemushroom = bluemushroom.position.equals(neuePosition);
             isyellowflash = yellowflash.position.equals(neuePosition);
@@ -287,22 +216,24 @@ public class SnakeController {
             }
         }
 
-        return new Position(x, y);
+        return neuePosition;
     }
 
     // Spielfeld mit Figur und Item wird "gemalt"
     private void draw() {
         GraphicsContext gc = gamesurface.getGraphicsContext2D();
-        gc.clearRect(0, 0, GRID_SIZE * TILE_SIZE, GRID_SIZE * TILE_SIZE);
+        gc.clearRect(0, 0, spielfeldumrandung.breite * TILE_SIZE, spielfeldumrandung.hoehe * TILE_SIZE);
 
-        // Draw Schlange
+        // Draw Spielkoerper
         gc.setFill(Color.GREEN);
-        for (Position position : snake) {
-            gc.fillRect(position.x * TILE_SIZE, position.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        for (Spielkoerperteil koerperteil : spielfigur.getKoerper()) {
+            gc.fillRect(koerperteil.position.x * TILE_SIZE, koerperteil.position.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
-        if (schildaktiviert && !snake.isEmpty()) { //Darstellung des Schilds
+        if (spielfigur.hatSchild) { //Darstellung des Schilds
             gc.setFill(Color.BLUE);
-            gc.fillRect(snake.getFirst().x * TILE_SIZE, snake.getFirst().y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        }
+        if (spielfigur.position != null) {
+            gc.fillRect(spielfigur.position.x * TILE_SIZE, spielfigur.position.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
 
         // Draw Item

@@ -4,4 +4,9 @@ public class Schildmodifier extends Item {
     public Schildmodifier(Position position) {
         this.position=position;
     }
+
+    @Override
+    public void auswirkung(Spielfigur spielfigur) {
+        spielfigur.hatSchild = true;
+    }
 }

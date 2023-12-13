@@ -1,5 +1,5 @@
 package de.ostfalia.group4.client.model;
 
 public interface Element {
-    void auswirkung();
+    void auswirkung(Spielfigur spielfigur);
 }

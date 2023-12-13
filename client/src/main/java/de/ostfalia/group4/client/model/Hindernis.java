@@ -9,7 +9,7 @@ public class Hindernis implements Element{
     }
 
     @Override
-    public void auswirkung() {
+    public void auswirkung(Spielfigur spielfigur) {
 
     }
 }

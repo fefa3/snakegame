@@ -4,8 +4,7 @@ public class Item implements Element{
     public Position position;
 
     @Override
-    public void auswirkung() {
+    public void auswirkung(Spielfigur spielfigur) {
 
     }
-
 }
