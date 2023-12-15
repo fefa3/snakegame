@@ -24,7 +24,7 @@ public class LoginController {
 
     @FXML
     private PasswordField passwortfeld;
-
+    public static String jwt;
     @FXML
     // Action Event, wegen anklicken des Login Buttons
     private void loginbuttonanklicken(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
@@ -58,7 +58,11 @@ public class LoginController {
         HttpRequest request=HttpRequest.newBuilder(new URI(url)).GET().build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         // 200 ist der Http Code für OK und 403 steht für Forbidden
-        return response.statusCode() == 200;
+        if (response.statusCode()==200){
+            jwt=response.body();
+            return true;
+        }
+        return false;
     }
 
 }

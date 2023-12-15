@@ -26,4 +26,19 @@ public class Statistik {
         this.datum = datum;
         this.score = score;
     }
+
+    public Statistik() {
+    }
+
+    public void setZeit(int zeit) {
+        this.zeit = zeit;
+    }
+
+    public void setDatum(Date datum) {
+        this.datum = datum;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
 }

@@ -1,5 +1,6 @@
 package de.ostfalia.group4.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.sql.Date;
@@ -32,9 +33,6 @@ public class Statistik {
         this.score = score;
     }
 
-    public User getUser() {
-        return user;
-    }
 
     public void setUser(User user) {
         this.user = user;
