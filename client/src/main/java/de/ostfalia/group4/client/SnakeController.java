@@ -1,5 +1,8 @@
 package de.ostfalia.group4.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.time.StopWatch;
 import de.ostfalia.group4.client.model.*;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -17,6 +20,14 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.Optional;
 
 public class SnakeController {
@@ -26,6 +37,10 @@ public class SnakeController {
 
     @FXML
     private Label gameOverLabel;
+    @FXML
+    private Label scorelabel;
+    @FXML
+    private Label timelabel;
     @FXML
     private Button tryagain;
     // final= Variablen sind fest und werden nicht verändert
@@ -42,9 +57,13 @@ public class SnakeController {
     private Timeline timeline;
     private Spielfigur spielfigur;
 
+    private int score;
+    private StopWatch zeit;
+
     @FXML
     private void initialize() {
         spielfeldumrandung = new Spielfeldumrandung(20,20);
+        zeit=new StopWatch();
         spielladen();
         gamesurface.sceneProperty().addListener((obs, oldScene, newScene) -> { // Tastatureingaben werden abgefangen, damit Spieler Schlange bewegen kann
             if (oldScene != null) { // != -> nicht gleich
@@ -78,6 +97,10 @@ public class SnakeController {
         orangeschild = new Schildmodifier(generateRandomFruit());
         hindernisse = new Hindernis[]{new Hindernis(generateRandomFruit()), new Hindernis(generateRandomFruit()), new Hindernis(generateRandomFruit())};
         gameOver = false;
+        score = 0;
+        zeit.reset();
+        zeit.start();
+        scorelabel.setText("Score: "+score);
     }
 
     @FXML
@@ -134,13 +157,13 @@ public class SnakeController {
         } else if (spielfigur.position.equals(redmushroom.position)) {
             redmushroom.auswirkung(spielfigur);
             redmushroom = new Groessenmodifier(generateRandomFruit(), 1);
+            score +=1; // für einen roten Pilz bekommt man einen Punkt
+            scorelabel.setText("Score: "+score); //score wird passend angezeigt (+1)
         } else if (spielfigur.position.equals(yellowflash.position)) {
-            yellowflash.auswirkung(spielfigur);
-            timeline.setRate(timeline.getRate()+yellowflash.geschwindigkeitsmodifier);
+            yellowflash.auswirkung(timeline);
             yellowflash = new Geschwindigkeitsmodifier(generateRandomFruit(), 0.1);
         } else if (spielfigur.position.equals(greenslime.position)) {
-            greenslime.auswirkung(spielfigur);
-            timeline.setRate(timeline.getRate()+greenslime.geschwindigkeitsmodifier);
+            greenslime.auswirkung(timeline);
             greenslime = new Geschwindigkeitsmodifier(generateRandomFruit(), -0.1);
         } else if (spielfigur.position.equals(orangeschild.position)) {
             orangeschild.auswirkung(spielfigur);
@@ -266,11 +289,19 @@ public class SnakeController {
         if (gameOver) {
             gameOverLabel.setVisible(true);
             tryagain.setVisible(true);
+            zeit.stop();
+            statsSpeichern();
         }
+
+        // Gespielte Zeit im Level anzeigen
+        timelabel.setText("Zeit: "+zeit.getTime()/1000+" sekunden");
     }
 
     public void hauptmenueladen(ActionEvent actionEvent) {
         timeline.pause();
+        if (!zeit.isStopped()){ //nur pausieren wenn Timer nicht gestoppt ist
+            zeit.suspend(); // Zeit pausiert mit Pausierung des Spiels
+        }
         // Abfrage, ob spiel wirklich beendet werden soll
         Alert alert = new Alert(Alert.AlertType.WARNING, "Spiel wirklich beenden?", ButtonType.OK, ButtonType.CANCEL);
         alert.setTitle("Spiel beenden");
@@ -278,8 +309,24 @@ public class SnakeController {
 
         if (result.get() == ButtonType.OK) {
             ViewManager.getInstance().hauptmenueladen();
+            return;
         }
         timeline.play();
+        zeit.resume();
+    }
+    private void statsSpeichern(){
+        try { //Fehlerhandling bei Jason und HTTP Request
+            Statistik statistik = new Statistik((int) (zeit.getTime() / 1000), new Date(), score);
+            String url = "http://localhost:8080/api/stats/add";
+            String jwt = LoginController.jwt;
+            ObjectMapper objectmapper = new ObjectMapper();
+            String body = objectmapper.writeValueAsString(statistik); //Statistik in Json umwandeln
+            // Erstellen einer GET-Anfrage
+            HttpRequest request = HttpRequest.newBuilder(new URI(url)).POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8)).header("Authorization", "Bearer " + jwt).header("Content-Type", "application/json").build(); // HTTP Request wird aufgebaut
+            HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 

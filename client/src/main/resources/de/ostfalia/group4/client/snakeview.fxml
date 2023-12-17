@@ -24,7 +24,7 @@
       </StackPane>
       <Button focusTraversable="false" layoutX="337.0" layoutY="538.0" mnemonicParsing="false" onAction="#hauptmenueladen" text="Hauptmenü" />
       <Button focusTraversable="false" layoutX="321.0" layoutY="37.0" mnemonicParsing="false" text="Musik On / Off" />
-      <Label layoutX="24.0" layoutY="41.0" text="Score: 0" />
-      <Label layoutX="126.0" layoutY="41.0" text="Zeit: 0 Sekunden" />
+      <Label fx:id="scorelabel" layoutX="24.0" layoutY="41.0" text="Score: 0" />
+      <Label fx:id="timelabel" layoutX="126.0" layoutY="41.0" text="Zeit: 0 Sekunden" />
    </children>
 </AnchorPane>

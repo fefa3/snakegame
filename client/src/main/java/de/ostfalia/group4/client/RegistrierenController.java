@@ -54,6 +54,7 @@ public class RegistrierenController {
             //Weiteres Verfahren bei verschiedenen Http Status Codes definiert
             //201 steht für CREATED, 400 für BAD REQUEST, wenn kein Passwort eingegeben wird, 409 steht für CONFLICT, wenn der Benutzername vergeben ist
             if (response.statusCode()==201){
+                LoginController.jwt = response.body(); // jwt wird gespeichert
                 ViewManager.getInstance().hauptmenueladen();
             } else if (response.statusCode()==400) {
                 new Alert(Alert.AlertType.ERROR, "Passwort darf nicht leer bleiben").show();
