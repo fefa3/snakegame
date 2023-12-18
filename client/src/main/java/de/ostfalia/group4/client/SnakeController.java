@@ -20,6 +20,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,9 +30,12 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
+import javax.sound.sampled.*;
+import java.io.File;
 
 public class SnakeController {
 
+    public Button soundbutton;
     @FXML
     private Canvas gamesurface; // Grid fängt oben links bei 0/0 an
 
@@ -59,6 +63,7 @@ public class SnakeController {
 
     private int score;
     private StopWatch zeit;
+    private boolean soundAbspielen = true; //Standartmaßig true
 
     @FXML
     private void initialize() {
@@ -154,20 +159,25 @@ public class SnakeController {
         if (spielfigur.position.equals(bluemushroom.position)) {
             bluemushroom.auswirkung(spielfigur);
             bluemushroom = new Groessenmodifier(generateRandomFruit(), -1);
+            sound("client\\BluemushroomSound.wav");
         } else if (spielfigur.position.equals(redmushroom.position)) {
             redmushroom.auswirkung(spielfigur);
             redmushroom = new Groessenmodifier(generateRandomFruit(), 1);
             score +=1; // für einen roten Pilz bekommt man einen Punkt
             scorelabel.setText("Score: "+score); //score wird passend angezeigt (+1)
+            sound("client\\RedmushroomSound.wav");
         } else if (spielfigur.position.equals(yellowflash.position)) {
             yellowflash.auswirkung(timeline);
             yellowflash = new Geschwindigkeitsmodifier(generateRandomFruit(), 0.1);
+            sound("client\\YellowflashSound.wav");
         } else if (spielfigur.position.equals(greenslime.position)) {
             greenslime.auswirkung(timeline);
             greenslime = new Geschwindigkeitsmodifier(generateRandomFruit(), -0.1);
+            sound("client\\GreenslimeSound.wav");
         } else if (spielfigur.position.equals(orangeschild.position)) {
             orangeschild.auswirkung(spielfigur);
             orangeschild = new Schildmodifier(generateRandomFruit());
+            sound("client\\SchildOnSound.wav");
         }
     }
     private boolean isCollision() { //Check, ob Spielfigur kollidiert
@@ -326,6 +336,28 @@ public class SnakeController {
             HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         } catch (URISyntaxException | IOException | InterruptedException e) {
             throw new RuntimeException(e);
+        }
+    }
+    private void sound (String filePath) {
+        if (!soundAbspielen) {
+            return;
+        }
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(filePath).getAbsoluteFile()); // Lade die Audio-Datei
+            Clip clip = AudioSystem.getClip(); // Erzeuge einen Clip
+            clip.open(audioInputStream); // Öffne den Clip mit der Audio-Datei
+            clip.start(); // Starte die Wiedergabe
+        } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void musikToggle(ActionEvent actionEvent) { //Musik geht an oder aus
+        soundAbspielen=!soundAbspielen;
+        if (soundAbspielen) {
+            soundbutton.setText("Musik aus");
+        } else {
+            soundbutton.setText("Musik an");
         }
     }
 }
