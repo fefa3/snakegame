@@ -70,6 +70,7 @@ public class SnakeController {
         spielfeldumrandung = new Spielfeldumrandung(20,20);
         zeit=new StopWatch();
         spielladen();
+        // Parameter/Funktion vom addListener ist ein Observer, welcher verwendet wird, um Änderungen der Scene zu überwachen (begleitet die Szenenveränderung)
         gamesurface.sceneProperty().addListener((obs, oldScene, newScene) -> { // Tastatureingaben werden abgefangen, damit Spieler Schlange bewegen kann
             if (oldScene != null) { // != -> nicht gleich
                 oldScene.removeEventHandler(KeyEvent.KEY_PRESSED, this::handleKeyPress);
