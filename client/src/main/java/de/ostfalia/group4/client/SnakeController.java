@@ -153,6 +153,7 @@ public class SnakeController {
             spielfigur.position = spielfigur.getKoerper().pop().position; //pop: entfernt das erste Element und gibt  es zurück
             spielfigur.hatSchild = false;
             spielfigur.ausweichen();
+            sound("client\\SchildOffSound.wav");
             return;
         }
 //!: Verneinung
@@ -206,38 +207,28 @@ public class SnakeController {
         // Schlange vorhanden?
         if (spielfigur.position == null) {
             gameOver = true;
+            sound("client\\CollisionSound.wav");
             return;
         }
         if (isCollision()) {
             gameOver = true;
+            sound("client\\CollisionSound.wav");
         }
     }
 
     private Position generateRandomFruit() {
-        //Überprüfen ob Red oder Blue Mushroom
-        Position neuePosition = spielfeldumrandung.zufallsPosition();
-        boolean isredmushroom = redmushroom != null && redmushroom.position.equals(neuePosition);
-        boolean isbluemushroom = bluemushroom != null && bluemushroom.position.equals(neuePosition);
-        boolean isyellowflash = yellowflash != null && yellowflash.position.equals(neuePosition);
-        boolean isgreenslime = greenslime != null && greenslime.position.equals(neuePosition);
-        boolean isorangeschild = orangeschild != null && orangeschild.position.equals(neuePosition);
-        boolean ishindernis = false;
-        if (hindernisse != null) {
-            for (Hindernis hindernis : hindernisse) {
-                if (hindernis.position.equals(neuePosition)) {
-                    ishindernis = true;
-                }
-            }
-        }
 
+        Position neuePosition;
+        boolean isredmushroom, isbluemushroom, isyellowflash, isgreenslime, isorangeschild, ishindernis;
         // Die Items dürfen nicht auf der Schlange und aufeinander spawnen
-        while (spielfigur.belegtPosition(neuePosition) || isredmushroom || isbluemushroom || isyellowflash || isgreenslime || isorangeschild || ishindernis) {
+        do {
+            //Überprüfen ob bereits Item oder Hindernis auf der Position
             neuePosition = spielfeldumrandung.zufallsPosition();
-            isredmushroom = redmushroom.position.equals(neuePosition);
-            isbluemushroom = bluemushroom.position.equals(neuePosition);
-            isyellowflash = yellowflash.position.equals(neuePosition);
-            isgreenslime = greenslime.position.equals(neuePosition);
-            isorangeschild = orangeschild.position.equals(neuePosition);
+            isredmushroom = redmushroom != null && redmushroom.position.equals(neuePosition);
+            isbluemushroom = bluemushroom != null && bluemushroom.position.equals(neuePosition);
+            isyellowflash = yellowflash != null && yellowflash.position.equals(neuePosition);
+            isgreenslime = greenslime != null && greenslime.position.equals(neuePosition);
+            isorangeschild = orangeschild != null && orangeschild.position.equals(neuePosition);
             ishindernis = false;
             if (hindernisse != null) {
                 for (Hindernis hindernis : hindernisse) {
@@ -247,7 +238,7 @@ public class SnakeController {
                     }
                 }
             }
-        }
+        } while (spielfigur.belegtPosition(neuePosition) || isredmushroom || isbluemushroom || isyellowflash || isgreenslime || isorangeschild || ishindernis);
 
         return neuePosition;
     }
@@ -342,14 +333,19 @@ public class SnakeController {
         if (!soundAbspielen) {
             return;
         }
-        try {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(filePath).getAbsoluteFile()); // Lade die Audio-Datei
-            Clip clip = AudioSystem.getClip(); // Erzeuge einen Clip
-            clip.open(audioInputStream); // Öffne den Clip mit der Audio-Datei
-            clip.start(); // Starte die Wiedergabe
-        } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
-            throw new RuntimeException(e);
-        }
+
+        // Thread = verarbeitungsprozess
+        //parallele Verarbeitung (Musik wird im neuen Thread abgespielt)
+        new Thread(() -> {
+            try {
+                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(filePath).getAbsoluteFile()); // Lade die Audio-Datei
+                Clip clip = AudioSystem.getClip(); // Erzeugt einen Clip
+                clip.open(audioInputStream); // Öffnet den Clip mit der Audio-Datei
+                clip.start(); // Startet die Wiedergabe
+            } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
     }
 
     public void musikToggle(ActionEvent actionEvent) { //Musik geht an oder aus
