@@ -1,13 +1,12 @@
 package de.ostfalia.group4.controllers;
 
-import de.ostfalia.group4.domain.repositories.UserRepository;
+import de.ostfalia.group4.repositories.UserRepository;
 import de.ostfalia.group4.models.User;
 import io.fusionauth.jwt.Signer;
 import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.hmac.HMACSigner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,11 +39,6 @@ public class UserController {
             return new ResponseEntity<>(encodedJWT, HttpStatus.OK);
         }
         return new ResponseEntity<>("Falsches Passwort", HttpStatus.FORBIDDEN);
-
-    }
-
-    @DeleteMapping(path = "/logout")
-    public void ausloggen() {
 
     }
 

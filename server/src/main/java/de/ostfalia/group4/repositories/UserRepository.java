@@ -1,4 +1,4 @@
-package de.ostfalia.group4.domain.repositories;
+package de.ostfalia.group4.repositories;
 
 import de.ostfalia.group4.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;

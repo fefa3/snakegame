@@ -1,7 +1,7 @@
 package de.ostfalia.group4.controllers;
 
-import de.ostfalia.group4.domain.repositories.StatistikRepository;
-import de.ostfalia.group4.domain.repositories.UserRepository;
+import de.ostfalia.group4.repositories.StatistikRepository;
+import de.ostfalia.group4.repositories.UserRepository;
 import de.ostfalia.group4.models.Statistik;
 import de.ostfalia.group4.models.User;
 import io.fusionauth.jwt.InvalidJWTException;
@@ -16,8 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Date;
-import java.util.Calendar;
 import java.util.List;
 
 @RestController
