@@ -2,7 +2,6 @@ package de.ostfalia.group4.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -13,16 +12,26 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
+/**
+ * Controller für die Historie
+ */
 public class HistorieController {
 
+    /**
+     * Die Tabelle mit den Spielen
+     */
     @FXML
     TableView<Statistik> historieTabelle;
 
-    // initialize = wenn der view lädt
+    /**
+     * Funktion, wenn der View geöffnet wird
+     *
+     * @throws URISyntaxException Server URL invalide
+     * @throws IOException Fehler beim Lesen der Antwort vom Server
+     * @throws InterruptedException Fehler bei der Anfrage an den Server
+     */
     @FXML
     public void initialize() throws URISyntaxException, IOException, InterruptedException {
         String url = "http://localhost:8080/api/stats";
@@ -41,7 +50,10 @@ public class HistorieController {
         historieTabelle.getItems().addAll(statistiken);
     }
 
-    public void hauptmenueladen(ActionEvent actionEvent) {
+    /**
+     * Hauptmenü anzeigen
+     */
+    public void hauptmenueladen() {
         ViewManager.getInstance().hauptmenueladen();
     }
 }

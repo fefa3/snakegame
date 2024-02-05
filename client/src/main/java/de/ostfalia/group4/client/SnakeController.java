@@ -1,8 +1,6 @@
 package de.ostfalia.group4.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.time.StopWatch;
 import de.ostfalia.group4.client.model.*;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -19,7 +17,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import org.apache.commons.lang3.time.StopWatch;
 
+import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -30,41 +30,122 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
-import javax.sound.sampled.*;
-import java.io.File;
 
+/**
+ * Controller für Snake.
+ * Steuert das Spiel
+ */
 public class SnakeController {
 
+    /**
+     * Sound ein / ausschalten
+     */
     public Button soundbutton;
+
+    /**
+     * Darstellung des Spiels als Grid
+     */
     @FXML
     private Canvas gamesurface; // Grid fängt oben links bei 0/0 an
 
+    /**
+     * Label für den Game Over Schriftzug
+     */
     @FXML
     private Label gameOverLabel;
+
+    /**
+     * Label für den Score
+     */
     @FXML
     private Label scorelabel;
+
+    /**
+     * Label für die verstrichene Zeit
+     */
     @FXML
     private Label timelabel;
+
+    /**
+     * Button zum erneut versuchen
+     */
     @FXML
     private Button tryagain;
+
+    /**
+     * Größe eines Tiles (eine Koordinate)
+     */
     // final= Variablen sind fest und werden nicht verändert
-    private static final int TILE_SIZE = 20; // Tile size: wie groß die Fläche ist, auf der sich die Items, Hindernisse etc. befinden
+    private static final int TILE_SIZE = 20;
+
+    /**
+     * Die Spielfeldumrandung
+     */
     private Spielfeldumrandung spielfeldumrandung;
+
+    /**
+     * Der Vergrößerungsmodifier
+     */
     private Item redmushroom;
+
+    /**
+     * Der Verkleinerungsmodifier
+     */
     private Item bluemushroom;
 
+    /**
+     * Schneller Modifier
+     */
     private Geschwindigkeitsmodifier yellowflash;
+
+    /**
+     * Langsamer Modifier
+     */
     private Geschwindigkeitsmodifier greenslime;
+
+    /**
+     * Schild Modifier
+     */
     private Schildmodifier orangeschild;
+
+    /**
+     * Die Hindernisse auf dem Spielfeld
+     */
     private Hindernis[] hindernisse;
+
+    /**
+     * Ob das Spiel vorbei ist
+     */
     private boolean gameOver;
+
+    /**
+     * Die Timeline der Gameloop
+     */
     private Timeline timeline;
+
+    /**
+     * Die Spielfigur
+     */
     private Spielfigur spielfigur;
 
+    /**
+     * Der aktuelle score
+     */
     private int score;
+
+    /**
+     * Zähler für die verstrichene Zeit
+     */
     private StopWatch zeit;
+
+    /**
+     * Ob Sounds abgespielt werden
+     */
     private boolean soundAbspielen = true; //Standartmaßig true
 
+    /**
+     * Funktion, wenn der View geöffnet wird
+     */
     @FXML
     private void initialize() {
         spielfeldumrandung = new Spielfeldumrandung(20,20);
@@ -86,7 +167,7 @@ public class SnakeController {
             if (!gameOver) {
                 spielfigur.bewegen();
                 auswirkungen();
-                checkCollision();
+                isGameOver();
                 draw();
             }
         }));
@@ -94,6 +175,9 @@ public class SnakeController {
         timeline.play();
     }
 
+    /**
+     * Standard-parameter setzen, um ein Spiel zu beginnen
+     */
     private void spielladen() {
         spielfigur = new Spielfigur(spielfeldumrandung.mitte()); // Schlagenkopf wird in der Mitte des Grids erstellt
         redmushroom = new Groessenmodifier(generateRandomFruit(), 1);
@@ -109,15 +193,21 @@ public class SnakeController {
         scorelabel.setText("Score: "+score);
     }
 
+    /**
+     * Neustart-Button klicken, alles neu initialisieren
+     */
     @FXML
-    // bei restart wieder alles initialisieren
-    private void restart(ActionEvent event) {
+    private void restart() {
         spielladen();
         gameOverLabel.setVisible(false);
         tryagain.setVisible(false);
         timeline.setRate(1);
     }
-    // Definieren der Tastatureingaben, was diese bewirken
+
+    /**
+     * Definieren der Tastatureingaben, was diese bewirken
+     * @param event Das Tasten-Event
+     */
     @FXML
     private void handleKeyPress(javafx.scene.input.KeyEvent event) {
         KeyCode code = event.getCode();
@@ -147,7 +237,9 @@ public class SnakeController {
         }
     }
 
-// Item Auswirkungen
+    /**
+     * Item Auswirkungen
+     */
     private void auswirkungen() {
         if (spielfigur.hatSchild && isCollision()) { //Figur kann vorher ausweichen, bevor Kopf in der Wand ist
             spielfigur.letztesKoerperteilhinzufuegen();
@@ -182,7 +274,13 @@ public class SnakeController {
             sound("client\\SchildOnSound.wav");
         }
     }
-    private boolean isCollision() { //Check, ob Spielfigur kollidiert
+
+    /**
+     * Check, ob Spielfigur kollidiert
+     *
+     * @return Ob die Spielfigur kollidiert ist
+     */
+    private boolean isCollision() {
         Position head = spielfigur.position;
 
         // Kollision mit Wand
@@ -204,7 +302,11 @@ public class SnakeController {
         }
         return false;
     }
-    private void checkCollision() {
+
+    /**
+     * Überprüfen. ob das Siel vorbei ist
+     */
+    private void isGameOver() {
         // Schlange vorhanden?
         if (spielfigur.position == null) {
             gameOver = true;
@@ -217,6 +319,11 @@ public class SnakeController {
         }
     }
 
+    /**
+     * Zufällige Position für Modifier generieren. Position darf nicht bereits besetzt sein
+     *
+     * @return Die neue, zufällige Position
+     */
     private Position generateRandomFruit() {
 
         Position neuePosition;
@@ -244,7 +351,9 @@ public class SnakeController {
         return neuePosition;
     }
 
-    // Spielfeld mit Figur und Item wird "gemalt"
+    /**
+     * Spielfeld mit Figur, Items und Hindernissen wird "gemalt"
+     */
     private void draw() {
         GraphicsContext gc = gamesurface.getGraphicsContext2D();
         gc.clearRect(0, 0, spielfeldumrandung.breite * TILE_SIZE, spielfeldumrandung.hoehe * TILE_SIZE);
@@ -299,7 +408,11 @@ public class SnakeController {
         timelabel.setText("Zeit: "+zeit.getTime()/1000+" sekunden");
     }
 
-    public void hauptmenueladen(ActionEvent actionEvent) {
+    /**
+     * Das Hauptmenü anzeigen
+     *
+     */
+    public void hauptmenueladen() {
         timeline.pause();
         if (!zeit.isStopped()){ //nur pausieren wenn Timer nicht gestoppt ist
             zeit.suspend(); // Zeit pausiert mit Pausierung des Spiels
@@ -316,6 +429,10 @@ public class SnakeController {
         timeline.play();
         zeit.resume();
     }
+
+    /**
+     * Spielstats nach dem Spiel an Server schicken
+     */
     private void statsSpeichern(){
         try { //Fehlerhandling bei Jason und HTTP Request
             Statistik statistik = new Statistik((int) (zeit.getTime() / 1000), new Date(), score);
@@ -330,6 +447,12 @@ public class SnakeController {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Einen Sound in einem neuen Thread abspielen
+     *
+     * @param filePath Pfad der Sound-Datei
+     */
     private void sound (String filePath) {
         if (!soundAbspielen) {
             return;
@@ -349,7 +472,10 @@ public class SnakeController {
         }).start();
     }
 
-    public void musikToggle(ActionEvent actionEvent) { //Musik geht an oder aus
+    /**
+     * Musik an / ausschalten
+     */
+    public void musikToggle() { //Musik geht an oder aus
         soundAbspielen=!soundAbspielen;
         if (soundAbspielen) {
             soundbutton.setText("Musik aus");

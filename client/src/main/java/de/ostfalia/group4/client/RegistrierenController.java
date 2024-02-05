@@ -1,6 +1,6 @@
 package de.ostfalia.group4.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.event.ActionEvent;
@@ -11,25 +11,41 @@ import javafx.scene.control.TextField;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+/**
+ * Controller für Registrieren-View
+ */
 public class RegistrierenController {
+    /**
+     * Eingabefeld für Benutzername
+     */
     // @fmxl, Referenz zur fxml Datei
     @FXML
     private TextField benutzernamefeld;
 
+    /**
+     * Eingabefeld für Passwort
+     */
     @FXML
     private PasswordField passwortfeld;
 
+    /**
+     * Eingabefeld für Passwort-Wiederholung
+     */
     @FXML
     private PasswordField passwortfeld2;
 
+    /**
+     * Auf Registrieren-Button klicken
+     *
+     * @throws IOException Fehler beim Lesen der Antwort vom Server
+     * @throws InterruptedException Fehler bei der Anfrage an den Server
+     */
     @FXML
-    public void registrierbuttonanklicken(ActionEvent actionEvent) throws IOException, InterruptedException {
+    public void registrierbuttonanklicken() throws IOException, InterruptedException {
         String benutzername = benutzernamefeld.getText();
         String passwort = passwortfeld.getText();
         String passwort2 = passwortfeld2.getText();

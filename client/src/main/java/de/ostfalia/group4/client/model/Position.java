@@ -1,13 +1,22 @@
 package de.ostfalia.group4.client.model;
 
-import de.ostfalia.group4.client.SnakeController;
-
 import java.util.Objects;
 
-// Koordinaten Repräsentation
+/**
+ * Eine Position auf dem Spielfeld
+ */
 public class Position {
+    /**
+     * x- und y- Koordinate
+     */
     public int x, y;
 
+    /**
+     * Konstruktor
+     *
+     * @param x x-Koordinate
+     * @param y y-Koordinate
+     */
     public Position(int x, int y) {
         this.x = x;
         this.y = y;

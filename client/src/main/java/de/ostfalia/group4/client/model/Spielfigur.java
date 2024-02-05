@@ -2,21 +2,50 @@ package de.ostfalia.group4.client.model;
 
 import java.util.LinkedList;
 
-// Spielfigur managed Körper und ist Kopf der Schlange
+/**
+ * Spielfigur managed Körper und ist Kopf der Schlange
+ */
 public class Spielfigur {
+    /**
+     * Position auf dem Spielfeld
+     */
     public Position position;
+
+    /**
+     * Der Körper der Schlange
+     */
     private LinkedList<Spielkoerperteil> koerper;
+
+    /**
+     * Die aktuelle Richtung
+     */
     public int richtung; // 0: hoch, 1: rechts, 2: unten, 3: links
+
+    /**
+     * Ob ein Schild aktiv ist
+     */
     public boolean hatSchild;
+
+    /**
+     * Das zuletzt entfernte Körperteil
+     */
     public Spielkoerperteil letztesKoerperteil;
 
-    // Konstruktor (für einen definierten Anfangszustand)
+    /**
+     * Konstruktor
+     *
+     * @param position Die Position auf dem Spielfeld
+     */
     public Spielfigur(Position position) {
         this.position = position;
         koerper = new LinkedList<>();
         richtung = 1;
         hatSchild = false;
     }
+
+    /**
+     * In die aktuelle Richtung bewegen
+     */
     public void bewegen() {
         Position altePosition = new Position(position.x, position.y);
         switch (richtung) { // Position entsprechend der Richtung anpassen
@@ -36,19 +65,35 @@ public class Spielfigur {
         koerper.addFirst(new Spielkoerperteil(altePosition)); // neuer Teil wird vorne hinzufügt (neues Körperteil)
         letztesKoerperteilentfernen();
     }
-    public void letztesKoerperteilentfernen() { // Merken des letzten Körperteil was entfernt wurde, damit das beim redmushroom wieder hinzugefügt werden kann
+
+    /**
+     * Merken des letzten Körperteils was entfernt wurde, damit das beim redmushroom wieder hinzugefügt werden kann
+     */
+    public void letztesKoerperteilentfernen() {
         letztesKoerperteil = koerper.removeLast();
     }
 
+    /**
+     * Fügt das letzte Körperteil wieder hinzu
+     */
     public void letztesKoerperteilhinzufuegen() {
         koerper.addLast(letztesKoerperteil);
         letztesKoerperteil = null; // Sicherstellung, dass dasselbe Körperteil nur einmal hinzugefügt wird
     }
 
+    /**
+     * Getter für Körper
+     *
+     * @return Den Körper
+     */
     public LinkedList<Spielkoerperteil> getKoerper() {
         return koerper;
     }
-    public void ausweichen() { //Random Richtung ändern, um mit Scild Kollision Hindernis/ Körper oder Wand zu verhindern
+
+    /**
+     * Random Richtung ändern, um mit Scild Kollision Hindernis/ Körper oder Wand zu verhindern
+     */
+    public void ausweichen() {
         switch (richtung) {
             case 0:
                 if (Math.random()<0.5) {
@@ -80,7 +125,14 @@ public class Spielfigur {
                 break;
         }
     }
-    public boolean belegtPosition(Position position) { //Überprüfen, ob sich ein Teil der Spielfigur sich an dieser Position befindet
+
+    /**
+     * Überprüfen, ob sich ein Teil der Spielfigur sich an dieser Position befindet
+     *
+     * @param position Die Position auf dem Spielfeld
+     * @return Ob die Schlange diese Position belegt
+     */
+    public boolean belegtPosition(Position position) {
         if (this.position == null) {
             return false;
         }

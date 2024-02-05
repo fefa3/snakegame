@@ -6,20 +6,39 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-// Singleton
+/**
+ * Singleton um die Views zu ändern
+ */
 public class ViewManager {
+    /**
+     * Die Instanz des View Managers
+     */
     private static ViewManager instance;
+
+    /**
+     * Getter für die Instanz
+     * @return Die Instanz des View Manager
+     */
     public static ViewManager getInstance() {
         if (null == instance) {
             instance = new ViewManager();
         }
         return instance;
     }
-    // Konstruktor: Nur ViewManager kann ViewManager instanziieren.
+
+    /**
+     * Privater Konstruktor, damit nur ViewManager den ViewManager instanziieren kann
+     */
     private ViewManager (){
 
     }
-    // Funktion zur Anzeige eines Fensters
+
+    /**
+     * Funktion zur Anzeige eines Fensters
+     *
+     * @param view Der View der angezeigt werden soll als fxml Datei
+     * @param titel Titel des Fensters
+     */
     private void viewladen(String view, String titel) {
         try {
             Stage mainstage = MainApplication.mainstage;
@@ -31,18 +50,39 @@ public class ViewManager {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Hauptmenü-View anzeigen
+     */
     public void hauptmenueladen(){
         viewladen("hauptmenueview.fxml", "Hauptmenü");
     }
+
+    /**
+     * Historie-View anzeigen
+     */
     public void historieladen(){
         viewladen("historieview.fxml", "Historie");
     }
+
+    /**
+     * Login-View anzeigen
+
+     */
     public void loginladen(){
         viewladen("loginview.fxml", "Login");
     }
+
+    /**
+     * Registrieren-View anzeigen
+     */
     public void registrierenladen(){
         viewladen("registrierenview.fxml", "Registrieren");
     }
+
+    /**
+     * Spiel-View anzeigen
+     */
     public void spielladen(){
         viewladen("snakeview.fxml", "Snake");
     }
