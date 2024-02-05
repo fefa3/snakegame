@@ -18,15 +18,34 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controller für gamestats API
+ */
 @RestController
 @RequestMapping("/api/stats")
 public class StatsController {
+    /**
+     * Benutzer Datenbankanbindung
+     */
     @Autowired
     private UserRepository userRepository;
+    /**
+     * Statistik Datenbankanbindung
+     */
     @Autowired
     private StatistikRepository repository;
+    /**
+     * Secret-Key der Anwendung für JWTs
+     */
     @Value("${application.secret}")
     private String applicationSecret;
+
+    /**
+     * Endpunkt um statistiken des Nutzers zu liefern
+     *
+     * @param authorization JWT als Authorization header
+     * @return alle Statistiken als JSON
+     */
     @GetMapping
     public ResponseEntity<List<Statistik>> statistikAbfragen(@RequestHeader("Authorization") String authorization) {
         JWT jwt;
@@ -51,6 +70,13 @@ public class StatsController {
         return new ResponseEntity<>(statistikList, HttpStatus.OK);
     }
 
+    /**
+     * Eine Statistik in die Datenbank hinzufügen
+     *
+     * @param statistik die Statistik als JSON-Body
+     * @param authorization JWT als Authorization header
+     * @return Ob die Statistik hinzugefügt wurde (Code 201), oder nicht (Code 500)
+     */
     @PostMapping(path = "/add")
     public ResponseEntity<String> statistikHinzufügen(@RequestBody Statistik statistik, @RequestHeader("Authorization") String authorization) {
         JWT jwt;

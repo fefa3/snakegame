@@ -14,14 +14,31 @@ import org.springframework.web.bind.annotation.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
+/**
+ * Controller für User API
+ */
 @RestController
 @RequestMapping("/api")
 public class UserController {
+    /**
+     * Benutzer Datenbankanbindung
+     */
     @Autowired
     private UserRepository userRepository;
+
+    /**
+     * Secret-Key der Anwendung für JWTs
+     */
     @Value("${application.secret}")
     private String applicationSecret;
 
+    /**
+     * Nutzerdaten überprüfen und ggf. anmelden
+     *
+     * @param benutzername Der Benutzername
+     * @param passwort Das Passwort
+     * @return der JWT, bei korrekter Eingabe
+     */
     @GetMapping(path = "/login")
     public ResponseEntity<String> authentifizieren(@RequestParam String benutzername, @RequestParam String passwort) {
         User user = userRepository.findByNameAndPassword(benutzername, passwort);
@@ -42,6 +59,12 @@ public class UserController {
 
     }
 
+    /**
+     * Neuen Nutzer registrieren und anmelden
+     *
+     * @param user die Nutzerinformationen als JSON-Body
+     * @return der JWT, bei korrekter Eingabe
+     */
     @PostMapping(path = "/register")
     public ResponseEntity<String> registrieren(@RequestBody User user) {
         if (userRepository.findByName(user.getName()) != null) {
